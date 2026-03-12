@@ -12,6 +12,14 @@ export const useAuthStore = create((set, get) => ({
 
   login: ({ user, accessToken, refreshToken }) => {
     set({ user, accessToken, refreshToken });
+  // login: ({ user, accessToken, refreshToken }) => {
+  // const normalizedUser = {
+  //   ...user,
+  //   role: user.role?.replace("ROLE_", ""),
+  // };
+
+  // set({ user: normalizedUser, accessToken, refreshToken });
+
     try {
       localStorage.setItem(STORAGE_USER, JSON.stringify(user));
       localStorage.setItem(STORAGE_ACCESS, accessToken || "");
@@ -60,22 +68,42 @@ export const useAuthStore = create((set, get) => ({
   },
 
   hydrate: () => {
-    try {
-      const userRaw = localStorage.getItem(STORAGE_USER);
-      const access = localStorage.getItem(STORAGE_ACCESS);
-      const refresh = localStorage.getItem(STORAGE_REFRESH);
+  let user = null;
 
-      const user = userRaw ? JSON.parse(userRaw) : null;
+  try {
+    const userRaw = localStorage.getItem(STORAGE_USER);
+    const access = localStorage.getItem(STORAGE_ACCESS);
+    const refresh = localStorage.getItem(STORAGE_REFRESH);
 
-      set({
-        user: user || null,
-        accessToken: access || null,
-        refreshToken: refresh || null,
-        isHydrated: true,
-      });
-    } catch (err) {
-      console.error("Failed to hydrate auth store", err);
-      set({ isHydrated: true });
+    if (userRaw && userRaw !== "undefined") {
+   user = JSON.parse(userRaw);
+//       const parsed = JSON.parse(userRaw);
+// user = {
+//   ...parsed,
+//   role: parsed.role?.replace("ROLE_", ""),
+// };
+
     }
-  },
+
+    set({
+      user,
+      accessToken: access || null,
+      refreshToken: refresh || null,
+      isHydrated: true,
+    });
+  } catch (err) {
+    console.error("Invalid auth data, clearing storage", err);
+    localStorage.removeItem(STORAGE_USER);
+    localStorage.removeItem(STORAGE_ACCESS);
+    localStorage.removeItem(STORAGE_REFRESH);
+
+    set({
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      isHydrated: true,
+    });
+  }
+},
+
 }));

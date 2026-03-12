@@ -1,25 +1,74 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuthStore } from "../store/authStore";
+import { axiosClient } from "../api/axiosClient";
 
 function ProfilePage() {
-   const [profile, setProfile] = useState({
-    name: "Rohit Kumar",
-    username: "rohit_123",
-    email: "rohit@example.com",
-    role: "Citizen",
-    location: "Chandigarh, India",
-    organization: "",
-    expertise: "",
-    contactInfo: "9876543210",
-    verified: true, 
-    avatarUrl: "", 
+  
+
+const user = useAuthStore((state) => state.user);
+const isAdmin = user?.role === "ADMIN";
+//const isHelperRole = user?.role === "LAWYER" || user?.role === "NGO";
+const [adminProfile, setAdminProfile] = useState({
+  username: "",
+  email: "",
+  role: "",
+});
+
+const [profile, setProfile] = useState({
+  name: user?.name || "",
+  username: user?.username || "",
+  email: user?.email || "",
+  role: user?.role || "",
+  location: user?.location || "",
+  organization: user?.organization || "",
+  expertise: user?.expertise || "",
+  contactInfo: user?.contactInfo || "",
+  verified: user?.verified ?? false,
+  avatarUrl: "",
   });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+  if (!isAdmin) {
+    setLoading(true);
+    axiosClient
+      .get("/profile/me")
+      .then((res) => {
+        setProfile(res.data);
+        setDraft(res.data);
+      })
+      .catch((err) => {
+        console.error("Failed to load profile", err);
+      })
+      .finally(() => setLoading(false));
+  }
+}, [isAdmin]);
+
+
+  useEffect(() => {
+  if (isAdmin) {
+    axiosClient
+      .get("/admin/me")
+      .then((res) => {
+        setAdminProfile({
+          username: res.data.username,
+          email: res.data.email,
+          role: res.data.role,
+        });
+      })
+      .catch((err) => {
+        console.error("Failed to load admin profile", err);
+      });
+  }
+}, [isAdmin]);
+
 
   const [editMode, setEditMode] = useState(false);
   const [draft, setDraft] = useState(profile);
   const [errors, setErrors] = useState({});
 
   const isHelperRole =
-    profile.role === "Lawyer" || profile.role === "NGO";
+    profile.role === "LAWYER" || profile.role === "NGO";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,14 +102,33 @@ function ProfilePage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = (e) => {
-    e.preventDefault();
-    if (!validate()) return;
+  // const handleSave = (e) => {
+  //   e.preventDefault();
+  //   if (!validate()) return;
 
-    setProfile(draft);
-    setEditMode(false);
-    alert("Profile updated locally (demo). Later this will call the backend.");
-  };
+  //   setProfile(draft);
+  //   setEditMode(false);
+  //   alert("Profile updated locally (demo). Later this will call the backend.");
+  // };
+
+  const handleSave = (e) => {
+  e.preventDefault();
+  if (!validate()) return;
+
+  axiosClient
+    .put("/profile/update", draft)
+    .then((res) => {
+      setProfile(res.data);
+      setDraft(res.data);
+      setEditMode(false);
+      alert("Profile updated successfully");
+    })
+    .catch((err) => {
+      console.error("Profile update failed", err);
+      alert("Failed to update profile");
+    });
+};
+
 
   const handleCancel = () => {
     setDraft(profile); 
@@ -73,13 +141,56 @@ function ProfilePage() {
     setErrors({});
     setEditMode(true);
   };
+  
 
   const avatarToShow = editMode ? draft.avatarUrl : profile.avatarUrl;
 
   return (
+    
     <div className="min-h-[calc(100vh-96px)] bg-slate-50">
       <div className="max-w-3xl mx-auto px-4 py-8 md:py-10">
+      {loading && (
+  <p className="text-sm text-slate-500 mb-4">
+    Loading profile...
+  </p>
+)}
+
+      {isAdmin && (
+  <section className="bg-white rounded-xl border p-5 text-sm text-slate-700">
+    <p className="text-xs text-slate-500 mb-1">Account</p>
+    <h2 className="text-lg font-semibold text-slate-900 mb-3">
+      Admin Profile
+    </h2>
+
+    <div className="space-y-3">
+      <div>
+        <p className="text-xs text-slate-500">Username</p>
+        <p className="font-medium">{adminProfile.username}</p>
+      </div>
+
+      <div>
+        <p className="text-xs text-slate-500">Email</p>
+        <p className="font-medium">{adminProfile.email}</p>
+      </div>
+
+      <div>
+        <p className="text-xs text-slate-500">Role</p>
+        <span className="inline-flex px-2 py-0.5 rounded-full border text-xs">
+          {adminProfile.role}
+        </span>
+      </div>
+    </div>
+
+    <p className="mt-4 text-xs text-slate-500">
+      Admin profile fields are system-managed. Editing will be enabled when the
+      profile API is connected.
+    </p>
+  </section>
+)}
+        {!isAdmin && (
+          <>
         {/* Page heading */}
+        
         <header className="mb-6">
           <p className="text-xs text-slate-500 mb-1">Account</p>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
@@ -383,6 +494,8 @@ function ProfilePage() {
             )}
           </div>
         </section>
+        </>
+        )}
       </div>
     </div>
   );

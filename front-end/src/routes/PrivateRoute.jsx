@@ -1,10 +1,11 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 
-function PrivateRoute({ children, allowedRoles, requireVerified }) {
+function PrivateRoute({ children, allowedRoles, requireVerified = false }) {
   const { user, accessToken, isHydrated } = useAuthStore();
   const location = useLocation();
 
+  // Wait until auth is hydrated
   if (!isHydrated) {
     return (
       <div className="min-h-[calc(100vh-96px)] flex items-center justify-center bg-slate-50">
@@ -13,6 +14,7 @@ function PrivateRoute({ children, allowedRoles, requireVerified }) {
     );
   }
 
+  // Not logged in
   if (!user || !accessToken) {
     return (
       <Navigate
@@ -23,13 +25,15 @@ function PrivateRoute({ children, allowedRoles, requireVerified }) {
     );
   }
 
+  // Role not allowed
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to="/" replace />;
   }
 
+  // Lawyer / NGO not verified
   if (
     requireVerified &&
-    (user.role === "Lawyer" || user.role === "NGO") &&
+    (user.role === "LAWYER" || user.role === "NGO") &&
     !user.verified
   ) {
     return <Navigate to="/pending-approval" replace />;

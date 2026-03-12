@@ -17,6 +17,7 @@ import { useAuthStore } from "./store/authStore";
 
 function App() {
   const hydrate = useAuthStore((s) => s.hydrate);
+  const isHydrated = useAuthStore((s) => s.isHydrated);
 
   useEffect(() => {
     hydrate();
@@ -25,7 +26,7 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen flex flex-col bg-slate-50">
-        {/* Simple header */}
+        {/* Header */}
         <header className="border-b bg-white">
           <div className="max-w-6xl mx-auto px-6 py-3 flex items-center">
             <div className="flex items-center gap-2">
@@ -39,81 +40,85 @@ function App() {
           </div>
         </header>
 
-        {/* Main content */}
+        {/* Main */}
         <main className="flex-1">
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/signin" element={<SigninPage />} />
-            <Route path="/signup" element={<SignupPage />} />
+          {!isHydrated ? (
+            <div className="min-h-[calc(100vh-96px)] flex items-center justify-center">
+              <p className="text-sm text-slate-600">Loading session...</p>
+            </div>
+          ) : (
+            <Routes>
+              {/* Public */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/signin" element={<SigninPage />} />
+              <Route path="/signup" element={<SignupPage />} />
 
-            {/* Protected dashboards */}
-            
+              {/* Dashboards */}
+              <Route
+                path="/dashboard/citizen"
+                element={
+                  <PrivateRoute allowedRoles={["CITIZEN"]}>
+                    <DashboardCitizen />
+                  </PrivateRoute>
+                }
+              />
 
-            <Route
-              path="/dashboard/citizen"
-              element={
-                <PrivateRoute allowedRoles={["Citizen"]}>
-                  <DashboardCitizen />
-                </PrivateRoute>
-              }
-            />
+              <Route
+                path="/dashboard/lawyer"
+                element={
+                  <PrivateRoute
+                    allowedRoles={["LAWYER"]}
+                    requireVerified={true}
+                  >
+                    <DashboardLawyer />
+                  </PrivateRoute>
+                }
+              />
 
-            <Route
-              path="/dashboard/lawyer"
-              element={
-                <PrivateRoute
-                  allowedRoles={["Lawyer"]}
-                  requireVerified={true}
-                >
-                  <DashboardLawyer />
-                </PrivateRoute>
-              }
-            />
+              <Route
+                path="/dashboard/ngo"
+                element={
+                  <PrivateRoute
+                    allowedRoles={["NGO"]}
+                    requireVerified={true}
+                  >
+                    <DashboardNGO />
+                  </PrivateRoute>
+                }
+              />
 
-            <Route
-              path="/dashboard/ngo"
-              element={
-                <PrivateRoute
-                  allowedRoles={["NGO"]}
-                  requireVerified={true}
-                >
-                  <DashboardNGO />
-                </PrivateRoute>
-              }
-            />
+              <Route
+                path="/dashboard/admin"
+                element={
+                  <PrivateRoute allowedRoles={["ADMIN"]}>
+                    <DashboardAdmin />
+                  </PrivateRoute>
+                }
+              />
 
-            <Route
-              path="/dashboard/admin"
-              element={
-                <PrivateRoute allowedRoles={["Admin"]}>
-                  <DashboardAdmin />
-                </PrivateRoute>
-              }
-            />
+              {/* Profile */}
+              <Route
+                path="/profile"
+                element={
+                  <PrivateRoute
+                    allowedRoles={["CITIZEN", "LAWYER", "NGO", "ADMIN"]}
+                  >
+                    <ProfilePage />
+                  </PrivateRoute>
+                }
+              />
 
-            {/* Protected profile */}
-            <Route
-              path="/profile"
-              element={
-                <PrivateRoute
-                  allowedRoles={["Citizen", "Lawyer", "NGO", "Admin"]}
-                >
-                  <ProfilePage />
-                </PrivateRoute>
-              }
-            />
-
-            {/* Pending approval for Lawyer / NGO */}
-            <Route
-              path="/pending-approval"
-              element={
-                <PrivateRoute allowedRoles={["Lawyer", "NGO"]}>
-                  <PendingApprovalPage />
-                </PrivateRoute>
-              }
-            />
-          </Routes>
+              {/* Pending approval */}
+              <Route
+                path="/pending-approval"
+                element={
+                  <PrivateRoute allowedRoles={["LAWYER", "NGO"]}>
+                    <PendingApprovalPage />
+                  </PrivateRoute>
+                }
+              />
+            </Routes>
+          )}
         </main>
       </div>
     </Router>

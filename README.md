@@ -1,83 +1,107 @@
-# React Application Starter Guide
+⚖️ Legal Aid Management System
 
-## Overview
+The Legal Aid Management System is a web-based platform designed to simplify the process of providing legal assistance to individuals who need legal support but may not have easy access to legal services. The system allows users to submit legal cases, while administrators or legal professionals can manage and review these cases efficiently.
 
-This guide helps you set up a modern React application with essential dependencies for building a Legal Aid Matching Platform frontend.
+This project focuses on improving accessibility, organization, and management of legal aid requests through a structured digital platform.
 
-## Prerequisites
+🚀 Features
 
-- Node.js (v16 or higher)
-- npm or yarn package manager
+📝 Case Submission System – Users can submit legal cases through a structured form
 
-## Installation
+📂 Case Management – Admin can view and manage submitted cases
 
-### 1. Create React App
+📊 Organized Data Storage – Case data stored in a backend database
 
-```bash
-npx create-react-app legal-aid-matching-platform
-cd legal-aid-matching-platform
-```
+🔍 Case Tracking – Ability to monitor submitted case requests
 
-### 2. Install Dependencies
+🔐 Backend API Integration – RESTful APIs for handling legal case operations
 
-```bash
-npm install axios react-router-dom
-npm install -D tailwindcss postcss autoprefixer
-npm install zustand
-npm install crypto-js
-```
+🛠️ Technologies Used
+Frontend
 
-**Dependencies Overview:**
+HTML
 
-- **axios**: HTTP client for API requests
-- **react-router-dom**: Client-side routing
-- **tailwindcss**: Utility-first CSS framework
-- **zustand**: Lightweight state management
-- **crypto-js**: Data encryption/decryption
+CSS
 
-## Configuration
+JavaScript
 
-### Tailwind CSS Setup
+React 
 
-```bash
-npx tailwindcss init -p
-```
+Backend
 
-Update `tailwind.config.js`:
+Java
 
-```js
-export default {
-  content: ["./src/**/*.{js,jsx}"],
-  theme: { extend: {} },
-  plugins: [],
-};
-```
+Spring Boot
 
-Update `src/index.css`:
+REST APIs
 
-```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-```
+Database
 
-## Project Structure
+MySQL / H2 
 
-```
-src/
-├── components/
-├── pages/
-├── store/          (Zustand state)
-├── utils/          (Encryption helpers)
-├── services/       (Axios API calls)
-├── App.jsx
-└── index.css
-```
+Tools
 
-## Quick Start
+Git & GitHub
 
-Run the development server:
+Maven
 
-```bash
+
+⚙️ How to Run the Project
+1️⃣ Clone the Repository
+git clone https://github.com/dhillonhappy565-sudo/Legal-aid-Matching-Platform.git
+2️⃣ Backend Setup
+
+Navigate to backend folder
+
+Run the Spring Boot application
+
+mvn spring-boot:run
+
+Backend server will start on:
+
+http://localhost:8080
+3️⃣ Frontend Setup
+
+Navigate to frontend folder
+
+npm install
 npm start
-```
+
+Frontend will run on:
+
+http://localhost:3000
+🎯 Project Objectives
+
+Improve accessibility to legal assistance
+
+Provide a structured system for managing legal cases
+
+Reduce manual work in legal aid organizations
+
+Create a digital platform for legal support requests
+
+📌 Future Improvements
+
+User authentication and role-based access
+
+Real-time case status tracking
+
+Document upload for legal evidence
+
+Notification system for case updates
+
+AI-based case categorization
+
+📚 Learning Outcomes
+
+Through this project, I gained experience in:
+
+Full-stack web development
+
+Backend API development with Spring Boot
+
+Database integration
+
+Building structured and scalable web applications
+
+⭐ If you find this project helpful, feel free to star the repository.

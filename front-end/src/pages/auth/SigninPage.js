@@ -42,25 +42,24 @@ function SigninPage() {
       return;
     }
 
-    if (user.role === "Admin") {
-      navigate("/dashboard/admin", { replace: true });
-    } else if (user.role === "Citizen") {
-      navigate("/dashboard/citizen", { replace: true });
-    } else if (user.role === "Lawyer") {
-      if (user.verified) {
-        navigate("/dashboard/lawyer", { replace: true });
-      } else {
-        navigate("/pending-approval", { replace: true });
-      }
-    } else if (user.role === "NGO") {
-      if (user.verified) {
-        navigate("/dashboard/ngo", { replace: true });
-      } else {
-        navigate("/pending-approval", { replace: true });
-      }
-    } else {
-      navigate("/", { replace: true });
-    }
+    if (user.role === "ADMIN") {
+  navigate("/dashboard/admin", { replace: true });
+} else if (user.role === "CITIZEN") {
+  navigate("/dashboard/citizen", { replace: true });
+} else if (user.role === "LAWYER") {
+  if (user.verified) {
+    navigate("/dashboard/lawyer", { replace: true });
+  } else {
+    navigate("/pending-approval", { replace: true });
+  }
+} else if (user.role === "NGO") {
+  if (user.verified) {
+    navigate("/dashboard/ngo", { replace: true });
+  } else {
+    navigate("/pending-approval", { replace: true });
+  }
+}
+
   };
 
   const handleSubmit = async (e) => {
@@ -73,13 +72,37 @@ function SigninPage() {
     try {
       // Adjust endpoint as per your backend
       const res = await axiosClient.post("/auth/login", {
-        email: formData.email,
-        password: formData.password,
-      });
+  email: formData.email,
+  password: formData.password,
+});
+console.log("LOGIN RESPONSE DATA:", res.data);
+const data = res.data;
 
-      const { user, accessToken, refreshToken } = res.data;
 
-      login({ user, accessToken, refreshToken });
+;
+const accessToken = data.accessToken || data.token;
+const refreshToken = data.refreshToken || null;
+
+const user = {
+  role: data.role,
+  verified: data.verified,
+};
+if (!user || !accessToken) {
+  throw new Error("Invalid login response from server");
+}
+
+login({
+  user,
+  accessToken,
+  refreshToken,
+});
+
+
+
+
+//redirectAfterLogin(normalizedUser);
+
+
 
       redirectAfterLogin(user);
     } catch (err) {

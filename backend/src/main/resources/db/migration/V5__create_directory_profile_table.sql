@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS directory_profile (
+    id BIGSERIAL PRIMARY KEY,
+    external_id VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(100) NOT NULL, -- NGO / LAWYER
+    email VARCHAR(255),
+    state VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

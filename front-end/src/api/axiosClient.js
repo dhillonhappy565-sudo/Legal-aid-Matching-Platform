@@ -1,7 +1,9 @@
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
-const API_BASE_URL = "http://localhost:4000/api"; // ⬅️ change to your backend base URL
+
+
+const API_BASE_URL = "http://localhost:8080"; // ⬅️ change to your backend base URL
 
 export const axiosClient = axios.create({
   baseURL: API_BASE_URL,
@@ -11,10 +13,13 @@ export const axiosClient = axios.create({
 axiosClient.interceptors.request.use(
   (config) => {
     const { accessToken } = useAuthStore.getState();
-    if (accessToken) {
-      config.headers = config.headers || {};
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
+
+if (accessToken) {
+  config.headers = config.headers || {};
+  config.headers.Authorization = `Bearer ${accessToken}`;
+}
+
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -70,3 +75,4 @@ axiosClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+

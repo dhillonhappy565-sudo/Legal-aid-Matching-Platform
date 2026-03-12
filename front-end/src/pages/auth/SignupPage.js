@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { axiosClient } from "../../api/axiosClient";
 
-const ROLES = ["Citizen", "Lawyer", "NGO"];
+const ROLES = ["CITIZEN", "LAWYER", "NGO"];
 
 function SignupPage() {
   const location = useLocation();
-  const preSelectedRole = location.state?.role || "Citizen";
+  const preSelectedRole = location.state?.role || "CITIZEN";
 
   const [formData, setFormData] = useState({
-    username: "",
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -29,7 +30,7 @@ function SignupPage() {
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.username.trim()) newErrors.username = "Username is required.";
+    if (!formData.name.trim()) newErrors.name = "Name is required.";
     if (!formData.email.trim()) newErrors.email = "Email is required.";
     else if (!/^\S+@\S+\.\S+$/.test(formData.email))
       newErrors.email = "Enter a valid email address.";
@@ -46,21 +47,41 @@ function SignupPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!validate()) return;
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validate()) return;
 
-    setSubmitting(true);
+  setSubmitting(true);
+  setErrors({});
 
-    setTimeout(() => {
-      setSubmitting(false);
-      alert(
-        formData.role === "Citizen"
-          ? "Citizen account created. Redirecting to dashboard."
-          : "Signup submitted! Your account requires admin approval."
-      );
-    }, 700);
-  };
+  try {
+    await axiosClient.post("/auth/register", {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      role: formData.role, // already UPPERCASE ✔
+    });
+
+    alert(
+      formData.role === "CITIZEN"
+        ? "Citizen account created successfully. Please login."
+        : "Signup successful! Your account requires admin approval."
+    );
+
+  } catch (err) {
+    console.error(err);
+
+    let message = "Signup failed. Please try again.";
+    if (err.response?.data?.message) {
+      message = err.response.data.message;
+    }
+
+    setErrors({ general: message });
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex bg-slate-50">
@@ -146,12 +167,19 @@ function SignupPage() {
               })}
             </div>
 
-            {formData.role !== "Citizen" && (
+            {formData.role !== "CITIZEN" && (
               <p className="text-xs text-yellow-600 mt-2">
                 * {formData.role} accounts require admin approval.
               </p>
             )}
           </div>
+
+
+            {errors.general && (
+  <div className="mb-4 text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+    {errors.general}
+  </div>
+)}
 
           {/* FORM */}
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -162,14 +190,14 @@ function SignupPage() {
               </label>
               <input
                 type="text"
-                name="username"
-                value={formData.username}
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 className="w-full border rounded-lg px-3 py-2.5 text-sm 
                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 placeholder="john_doe"
               />
-              {errors.username && (
+              {errors.name && (
                 <p className="text-xs text-red-500 mt-1">{errors.username}</p>
               )}
             </div>
