@@ -60,6 +60,7 @@ mvn spring-boot:run
 Backend server will start on:
 
 http://localhost:8080
+
 3️⃣ Frontend Setup
 
 Navigate to frontend folder
@@ -70,6 +71,7 @@ npm start
 Frontend will run on:
 
 http://localhost:3000
+
 🎯 Project Objectives
 
 Improve accessibility to legal assistance
